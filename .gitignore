@@ -11,3 +11,4 @@ nytprof/
 *.tar.gz
 *.sw[po]
 *.bak
+*.[co]
