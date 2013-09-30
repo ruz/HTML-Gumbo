@@ -1,0 +1,7 @@
+Build.PL
+lib/HTML/Gumbo.pm
+lib/HTML/Gumbo.xs
+MANIFEST			This list of files
+t/callback.t
+t/string.t
+t/tree.t
