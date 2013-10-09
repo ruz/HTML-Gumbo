@@ -45,7 +45,8 @@ walk_tree(pTHX_ GumboNode* node, void (*cb)(pTHX_ PerlHtmlGumboType, GumboNode*,
             children = &node->v.element.children;
         }
         if (children) {
-            for (int i = 0; i < children->length; ++i) {
+            int i = 0;
+            for (i = 0; i < children->length; ++i) {
                 walk_tree(aTHX_ children->data[i], cb, ctx);
             }
         }
@@ -71,9 +72,10 @@ get_tag_name(GumboElement* e) {
 
 STATIC void
 out_attr_value(SV* out, const char* v) {
+    STRLEN i;
     STRLEN prev = 0;
     STRLEN len = strlen(v);
-    for ( STRLEN i = 0; i < len; i++ ) {
+    for ( i = 0; i < len; i++ ) {
         if (v[i] != '"' && v[i] != '&' )
             continue;
         if (i != prev)
@@ -87,9 +89,10 @@ out_attr_value(SV* out, const char* v) {
 
 STATIC void
 out_text(SV* out, const char* v) {
+    STRLEN i;
     STRLEN prev = 0;
     STRLEN len = strlen(v);
-    for ( STRLEN i = 0; i < len; i++ ) {
+    for ( i = 0; i < len; i++ ) {
         if (v[i] != '<' && v[i] != '>' && v[i] != '&' )
             continue;
         if (i != prev)
@@ -103,11 +106,12 @@ out_text(SV* out, const char* v) {
 
 STATIC void
 out_tag_start_line(SV* out, GumboElement* e) {
+    int i;
     GumboStringPiece piece = get_tag_name(e);
 
     sv_catpvs(out, "<");
     sv_catpvn(out, piece.data, piece.length);
-    for (int i = 0; i < e->attributes.length; i++) {
+    for (i = 0; i < e->attributes.length; i++) {
         GumboAttribute* attr = (GumboAttribute*) e->attributes.data[i];
         sv_catpvs(out, " ");
         sv_catpv(out, attr->name);
@@ -220,10 +224,11 @@ new_html_element(pTHX_ GumboNode* node) {
         mXPUSHs(newSVpvs("document"));
     }
     else if ( node->type == GUMBO_NODE_ELEMENT ) {
+        int i;
         GumboVector* attrs = &node->v.element.attributes;
         GumboStringPiece tag = get_tag_name(&node->v.element);
         mXPUSHs(newSVpvn8( tag.data, tag.length ));
-        for (int i = 0; i < attrs->length; i++) {
+        for (i = 0; i < attrs->length; i++) {
             GumboAttribute* attr = (GumboAttribute*) attrs->data[i];
             mXPUSHs(newSVpvz8( attr->name ));
             mXPUSHs(newSVpvz8( attr->value ));
@@ -355,7 +360,7 @@ tree_to_tree(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
     if ( type == PHG_TEXT ) {
         if ( node->type == GUMBO_NODE_COMMENT ) {
             SV* element = new_html_element(aTHX_ node);
-            push_element(*out, element);
+            push_element(aTHX_ *out, element);
             SvREFCNT_dec(element);
         } else {
             push_text_element(*out, node->v.text.text, 0);
@@ -367,7 +372,7 @@ tree_to_tree(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
         sv_2mortal(*out);
         if ( doc->has_doctype ) {
             SV* element = new_html_element_doctype(aTHX_ doc);
-            push_element(*out, element);
+            push_element(aTHX_ *out, element);
             SvREFCNT_dec(element);
         }
     }
@@ -375,7 +380,7 @@ tree_to_tree(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
     }
     else if ( type == PHG_ELEMENT_START ) {
         SV* element = new_html_element(aTHX_ node);
-        push_element(*out, element);
+        push_element(aTHX_ *out, element);
         *out = element;
     }
     else if ( type == PHG_ELEMENT_END ) {
@@ -430,6 +435,7 @@ tree_to_callback(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
         mXPUSHs(newSVpvs("document end"));
     }
     else if ( type == PHG_ELEMENT_START ) {
+        int i;
         GumboVector* attrs = &node->v.element.attributes;
         GumboStringPiece tag = get_tag_name(&node->v.element);
         AV* for_attrs = newAV();
@@ -437,7 +443,7 @@ tree_to_callback(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
         mXPUSHs(newSVpvs("start"));
         mXPUSHs(newSVpvn8( tag.data, tag.length ));
         mXPUSHs(newRV_noinc(MUTABLE_SV(for_attrs)));
-        for (int i = 0; i < attrs->length; i++) {
+        for (i = 0; i < attrs->length; i++) {
             GumboAttribute* attr = (GumboAttribute*) attrs->data[i];
             av_push(for_attrs, newSVpvz8( attr->name ));
             av_push(for_attrs, newSVpvz8( attr->value ));
@@ -460,9 +466,9 @@ tree_to_callback(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
 }
 
 STATIC
-char* prepare_buffer(SV* buffer) {
+char* prepare_buffer(pTHX_ SV* buffer) {
     if(!SvROK(buffer))
-        Perl_croak("First argument is not a reference");
+        croak("First argument is not a reference");
 
     buffer = SvRV(buffer);
     return SvPV_nolen(buffer);
@@ -476,7 +482,7 @@ parse_to_string(self, buffer, ...)
     SV *buffer
 
     CODE:
-        const char* str = prepare_buffer(buffer);
+        const char* str = prepare_buffer(aTHX_ buffer);
 
         RETVAL = newSVpvn8("", 0);
 
@@ -498,7 +504,7 @@ parse_to_tree(self, buffer, ...)
             newSVpvs("HTML::TreeBuilder"),
             newSViv(5), newSVpvs("-weak"), NULL
         );
-        str = prepare_buffer(buffer);
+        str = prepare_buffer(aTHX_ buffer);
 
         SV* res;
         GumboOutput* output = gumbo_parse(str);
@@ -515,7 +521,7 @@ _parse_to_callback(self, buffer, cb, ...)
     SV *cb
 
     CODE:
-        const char* str = prepare_buffer(buffer);
+        const char* str = prepare_buffer(aTHX_ buffer);
 
         GumboOutput* output = gumbo_parse(str);
         walk_tree(aTHX_ output->document, tree_to_callback, (void*)cb);
