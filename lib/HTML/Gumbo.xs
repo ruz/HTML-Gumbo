@@ -423,7 +423,7 @@ tree_to_callback(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
         mXPUSHs(newSVpvs("document start"));
         if ( doc->has_doctype ) {
             HV* h = newHV();
-            mXPUSHs(newRV_noinc(MUTABLE_SV(h)));
+            mXPUSHs(newRV_noinc((SV*)h));
             (void)hv_stores(h, "name", newSVpvz8( doc->name ));
             (void)hv_stores(h, "public", newSVpvz8( doc->public_identifier ));
             (void)hv_stores(h, "system", newSVpvz8( doc->system_identifier ));
@@ -442,7 +442,7 @@ tree_to_callback(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
 
         mXPUSHs(newSVpvs("start"));
         mXPUSHs(newSVpvn8( tag.data, tag.length ));
-        mXPUSHs(newRV_noinc(MUTABLE_SV(for_attrs)));
+        mXPUSHs(newRV_noinc((SV*)for_attrs));
         for (i = 0; i < attrs->length; i++) {
             GumboAttribute* attr = (GumboAttribute*) attrs->data[i];
             av_push(for_attrs, newSVpvz8( attr->name ));
