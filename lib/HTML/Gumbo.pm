@@ -5,7 +5,7 @@ use warnings;
 package HTML::Gumbo;
 
 use Alien::LibGumbo;
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 require XSLoader;
 XSLoader::load('HTML::Gumbo', $VERSION);
