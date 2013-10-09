@@ -1,0 +1,23 @@
+---
+abstract: 'HTML5 parser based on gumbo C library'
+author:
+  - 'Ruslan Zakirov E<lt>ruz@bestpractical.comE<gt>'
+build_requires:
+  ExtUtils::CBuilder: 0
+configure_requires:
+  Alien::LibGumbo: 0
+  Module::Build: 0.40
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4007, CPAN::Meta::Converter version 2.131560'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: HTML-Gumbo
+provides:
+  HTML::Gumbo:
+    file: lib/HTML/Gumbo.pm
+    version: 0.1
+requires:
+  Alien::LibGumbo: 0
+version: 0.1
