@@ -2,6 +2,10 @@ use strict;
 use warnings;
 use Test::More;
 
+unless ( do { local $@; eval "use HTML::TreeBuilder 5 -weak; 1" } } ) {
+    plan skip_all => 'No HTML::TreeBuilder 5 -weak';
+}
+
 use_ok('HTML::Gumbo');
 
 my $parser = HTML::Gumbo->new;
