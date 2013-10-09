@@ -1,0 +1,42 @@
+{
+   "abstract" : "HTML5 parser based on gumbo C library",
+   "author" : [
+      "Ruslan Zakirov E<lt>ruz@bestpractical.comE<gt>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.4007, CPAN::Meta::Converter version 2.131560",
+   "license" : [
+      "unknown"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "HTML-Gumbo",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::CBuilder" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Alien::LibGumbo" : "0",
+            "Module::Build" : "0.40"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Alien::LibGumbo" : "0"
+         }
+      }
+   },
+   "provides" : {
+      "HTML::Gumbo" : {
+         "file" : "lib/HTML/Gumbo.pm",
+         "version" : "0.1"
+      }
+   },
+   "release_status" : "stable",
+   "version" : "0.1"
+}
