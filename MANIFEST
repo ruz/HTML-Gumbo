@@ -5,3 +5,5 @@ MANIFEST			This list of files
 t/callback.t
 t/string.t
 t/tree.t
+META.yml
+META.json
