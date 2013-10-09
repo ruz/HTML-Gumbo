@@ -11,6 +11,9 @@ my $builder = Module::Build->new(
     build_requires => {
         'ExtUtils::CBuilder' => 0,
     },
+    requires => {
+        'Alien::LibGumbo' => 0,
+    },
 
     extra_compiler_flags => $alien->cflags(),
     extra_linker_flags   => $alien->libs(),
