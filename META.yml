@@ -17,7 +17,7 @@ name: HTML-Gumbo
 provides:
   HTML::Gumbo:
     file: lib/HTML/Gumbo.pm
-    version: 0.1
+    version: 0.11
 requires:
   Alien::LibGumbo: 0
-version: 0.1
+version: 0.11
