@@ -15,6 +15,12 @@ my $builder = Module::Build->new(
         'Alien::LibGumbo' => 0,
     },
 
+    meta_merge => {
+        resources => {
+            repository => 'https://github.com/ruz/HTML-Gumbo'
+        }
+    },
+
     extra_compiler_flags => $alien->cflags(),
     extra_linker_flags   => $alien->libs(),
 );
