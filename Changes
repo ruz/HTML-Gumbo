@@ -2,7 +2,13 @@ Revision history for Perl module HTML::Gumbo
 
 0.12 2013-10-09
 
+    - perl 5.10 compatibility
+
 0.11 2013-10-09
+
+    - use c89 scoping of iterator in for loops
+    - fixes for threaded perls
+    - skip test if HTML::TreeBuilder is not installed
 
 0.1 2013-09-30
 
