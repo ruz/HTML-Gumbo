@@ -549,7 +549,7 @@ parse_to_gumbo(self, buffer, ...)
 
     OUTPUT: RETVAL
 
-MODULE = HTML::Gumbo::Result    PACKAGE = HTML::Gumbo::Result
+MODULE = HTML::Gumbo    PACKAGE = HTML::Gumbo::Result
 
 SV*
 document(self)
@@ -565,6 +565,32 @@ DESTROY(self)
     CODE:
         GumboOutput* output = xs_object_magic_get_struct_rv(aTHX_ self);
         if (output)
-            gumbo_destroy_output(&kGumboDefaultOptions, output;
-        xs_object_magic_detach_struct(aTHX_ self);
+            gumbo_destroy_output(&kGumboDefaultOptions, output);
+        xs_object_magic_detach_struct_rv(aTHX_ self, NULL);
+
+MODULE = HTML::Gumbo    PACKAGE = HTML::Gumbo::Node
+
+char*
+type(self)
+    SV* self
+    CODE:
+        GumboNode* node = xs_object_magic_get_struct_rv(aTHX_ self);
+        switch(node->type) {
+            case GUMBO_NODE_DOCUMENT:
+                RETVAL = "document"; break;
+            case GUMBO_NODE_ELEMENT:
+                RETVAL = "element"; break;
+            case GUMBO_NODE_COMMENT:
+                RETVAL = "comment"; break;
+            case GUMBO_NODE_CDATA:
+                RETVAL = "cdata"; break;
+            case GUMBO_NODE_TEXT:
+                RETVAL = "text"; break;
+            case GUMBO_NODE_WHITESPACE:
+                RETVAL = "space"; break;
+            default:
+                croak("Unknown node type");
+        }
+    OUTPUT: RETVAL
+
 
