@@ -3,6 +3,7 @@
 #include "XSUB.h"
 
 #include "gumbo.h"
+#include <xs_object_magic.h>
 
 #define PHG_IS_VOID_ELEMENT(tag) \
     (  tag == GUMBO_TAG_AREA \
@@ -528,3 +529,42 @@ _parse_to_callback(self, buffer, cb, ...)
         gumbo_destroy_output(&kGumboDefaultOptions, output);
 
         XSRETURN_YES;
+
+SV*
+parse_to_gumbo(self, buffer, ...)
+    SV *self
+    SV *buffer
+
+    CODE:
+        const char* str;
+        load_module(
+            0,
+            newSVpvs("HTML::Gumbo::Result"),
+            NULL, NULL
+        );
+        str = prepare_buffer(aTHX_ buffer);
+
+        GumboOutput* output = gumbo_parse(str);
+        RETVAL = xs_object_magic_create(aTHX_ (void*)output, gv_stashpv("HTML::Gumbo::Result", 0));
+
+    OUTPUT: RETVAL
+
+MODULE = HTML::Gumbo::Result    PACKAGE = HTML::Gumbo::Result
+
+SV*
+document(self)
+    SV* self
+    CODE:
+        GumboOutput* output = xs_object_magic_get_struct_rv(aTHX_ self);
+        RETVAL = xs_object_magic_create(aTHX_ (void*)output->document, gv_stashpv("HTML::Gumbo::Document", 0));
+    OUTPUT: RETVAL
+
+void
+DESTROY(self)
+    SV* self
+    CODE:
+        GumboOutput* output = xs_object_magic_get_struct_rv(aTHX_ self);
+        if (output)
+            gumbo_destroy_output(&kGumboDefaultOptions, output;
+        xs_object_magic_detach_struct(aTHX_ self);
+

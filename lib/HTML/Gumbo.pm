@@ -7,6 +7,8 @@ package HTML::Gumbo;
 use Alien::LibGumbo;
 our $VERSION = '0.12';
 
+use XS::Object::Magic;
+
 require XSLoader;
 XSLoader::load('HTML::Gumbo', $VERSION);
 
