@@ -1,5 +1,9 @@
 Revision history for Perl module HTML::Gumbo
 
+0.13 2014-07-17
+
+    - Additional fix for threaded perl
+
 0.12 2013-10-09
 
     - perl 5.10 compatibility
