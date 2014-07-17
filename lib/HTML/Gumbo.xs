@@ -363,7 +363,7 @@ tree_to_tree(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
             push_element(aTHX_ *out, element);
             SvREFCNT_dec(element);
         } else {
-            push_text_element(*out, node->v.text.text, 0);
+            push_text_element(aTHX_ *out, node->v.text.text, 0);
         }
     }
     else if ( type == PHG_ELEMENT_START && node->type == GUMBO_NODE_DOCUMENT ) {
