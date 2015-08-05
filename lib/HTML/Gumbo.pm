@@ -4,7 +4,6 @@ use warnings;
 
 package HTML::Gumbo;
 
-use Alien::LibGumbo;
 our $VERSION = '0.13';
 
 require XSLoader;

@@ -6,13 +6,12 @@ my $builder = Module::Build->new(
     module_name => 'HTML::Gumbo',
 
     configure_requires => {
-        'Alien::LibGumbo' => 0,
+        'Alien::LibGumbo' => 0.14,
     },
     build_requires => {
         'ExtUtils::CBuilder' => 0,
     },
     requires => {
-        'Alien::LibGumbo' => 0,
     },
 
     meta_merge => {
