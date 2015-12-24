@@ -454,6 +454,9 @@ tree_to_callback(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
         mXPUSHs(newSVpvs("end"));
         mXPUSHs(newSVpvn8( tag.data, tag.length ));
     }
+    else {
+        croak("Unknown element type");
+    }
 
     PUTBACK;
 
