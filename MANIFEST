@@ -7,3 +7,4 @@ t/string.t
 t/tree.t
 META.yml
 META.json
+LICENSE

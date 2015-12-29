@@ -4,9 +4,9 @@
       "Ruslan Zakirov E<lt>ruz@bestpractical.comE<gt>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4206",
+   "generated_by" : "Module::Build version 0.4211",
    "license" : [
-      "unknown"
+      "perl_5"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -39,9 +39,13 @@
    },
    "release_status" : "stable",
    "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ],
       "repository" : {
          "url" : "https://github.com/ruz/HTML-Gumbo"
       }
    },
-   "version" : "0.13"
+   "version" : "0.13",
+   "x_serialization_backend" : "JSON::PP version 2.27203"
 }
