@@ -4,7 +4,7 @@
       "Ruslan Zakirov E<lt>ruz@bestpractical.comE<gt>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4206",
+   "generated_by" : "Module::Build version 0.421",
    "license" : [
       "unknown"
    ],
@@ -34,7 +34,7 @@
    "provides" : {
       "HTML::Gumbo" : {
          "file" : "lib/HTML/Gumbo.pm",
-         "version" : "0.13"
+         "version" : "0.14"
       }
    },
    "release_status" : "stable",
@@ -43,5 +43,5 @@
          "url" : "https://github.com/ruz/HTML-Gumbo"
       }
    },
-   "version" : "0.13"
+   "version" : "0.14"
 }

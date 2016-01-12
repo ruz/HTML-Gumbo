@@ -1,5 +1,9 @@
 Revision history for Perl module HTML::Gumbo
 
+0.14 2015-12-28
+
+    - croak in case we don't know what to do
+
 0.13 2014-07-17
 
     - Additional fix for threaded perl
