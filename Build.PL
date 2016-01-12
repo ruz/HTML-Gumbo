@@ -15,6 +15,7 @@ my $builder = Module::Build->new(
     },
     requires => {
         'Alien::LibGumbo' => 0,
+        'XSLoader' => 0,
     },
 
     meta_merge => {
