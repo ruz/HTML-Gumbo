@@ -27,6 +27,8 @@
 #define newSVpvn8(str, len) \
     newSVpvn_utf8((str), (len), 1)
 
+#define PHG_FLAG_SKIP_ROOT_ELEMENT 1
+
 typedef enum {
     PHG_ELEMENT_START,
     PHG_ELEMENT_END,
@@ -35,10 +37,13 @@ typedef enum {
 
 STATIC
 void
-walk_tree(pTHX_ GumboNode* node, void (*cb)(pTHX_ PerlHtmlGumboType, GumboNode*, void*), void* ctx ) {
+walk_tree(pTHX_ GumboNode* node, int flags, void (*cb)(pTHX_ PerlHtmlGumboType, GumboNode*, void*), void* ctx ) {
     if ( node->type == GUMBO_NODE_DOCUMENT || node->type == GUMBO_NODE_ELEMENT ) {
         GumboVector* children;
-        (*cb)(aTHX_ PHG_ELEMENT_START, node, ctx);
+        int skip = flags&PHG_FLAG_SKIP_ROOT_ELEMENT && node->type == GUMBO_NODE_ELEMENT && node->parent && node->parent->type == GUMBO_NODE_DOCUMENT;
+        if ( !skip ) {
+            (*cb)(aTHX_ PHG_ELEMENT_START, node, ctx);
+        }
         if ( node->type == GUMBO_NODE_DOCUMENT ) {
             children = &node->v.document.children;
         } else {
@@ -47,10 +52,12 @@ walk_tree(pTHX_ GumboNode* node, void (*cb)(pTHX_ PerlHtmlGumboType, GumboNode*,
         if (children) {
             int i = 0;
             for (i = 0; i < children->length; ++i) {
-                walk_tree(aTHX_ children->data[i], cb, ctx);
+                walk_tree(aTHX_ children->data[i], flags, cb, ctx);
             }
         }
-        (*cb)(aTHX_ PHG_ELEMENT_END, node, ctx);
+        if ( !skip ) {
+            (*cb)(aTHX_ PHG_ELEMENT_END, node, ctx);
+        }
     } else {
         (*cb)(aTHX_ PHG_TEXT, node, ctx);
     }
@@ -368,8 +375,6 @@ tree_to_tree(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
     }
     else if ( type == PHG_ELEMENT_START && node->type == GUMBO_NODE_DOCUMENT ) {
         GumboDocument* doc = &node->v.document;
-        *out = new_html_element(aTHX_ node);
-        sv_2mortal(*out);
         if ( doc->has_doctype ) {
             SV* element = new_html_element_doctype(aTHX_ doc);
             push_element(aTHX_ *out, element);
@@ -469,65 +474,123 @@ tree_to_callback(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
 }
 
 STATIC
-char* prepare_buffer(pTHX_ SV* buffer) {
+GumboOptions
+format_options(pTHX_ HV* opts) {
+    if (!opts)
+        return kGumboDefaultOptions;
+
+    STRLEN len;
+
+    GumboOptions res = kGumboDefaultOptions;
+    if ( hv_exists(opts, "fragment_namespace", 18) ) {
+        char *ns =  SvPV(*hv_fetch(opts, "fragment_namespace", 18, 0), len);
+        if ( strcmp( ns, "HTML" ) )
+            res.fragment_namespace = GUMBO_NAMESPACE_HTML;
+        else if ( strcmp( ns, "SVG" ) )
+            res.fragment_namespace = GUMBO_NAMESPACE_SVG;
+        else if ( strcmp( ns, "MATHML" ) )
+            res.fragment_namespace = GUMBO_NAMESPACE_MATHML;
+        else
+            croak("Unknown fragment namespace");
+
+        res.fragment_context = GUMBO_TAG_BODY;
+    }
+    return res;
+}
+
+STATIC
+SV*
+parse_to_string_cb(pTHX_ GumboNode* document, int flags, void* not_used ) {
+    SV* res = newSVpvn8("", 0);
+    walk_tree(aTHX_ document, flags, tree_to_string, (void*)res);
+    return res;
+}
+
+STATIC
+SV*
+parse_to_tree_cb(pTHX_ GumboNode* document, int flags, void* not_used ) {
+    SV* res;
+    GumboNode fake;
+    fake.type = GUMBO_NODE_DOCUMENT;
+    res = new_html_element(aTHX_ &fake);
+    walk_tree(aTHX_ document, flags, tree_to_tree, (void*)(&res));
+    return res;
+}
+
+STATIC
+SV*
+parse_to_callback_cb(pTHX_ GumboNode* document, int flags, void* cb ) {
+    walk_tree(aTHX_ document, flags, tree_to_callback, cb);
+    return &PL_sv_yes;
+}
+
+STATIC
+SV*
+common_parse(pTHX_ SV* buffer, HV* opts, SV* (*cb)(pTHX_ GumboNode*, int, void*), void* payload ) {
+    SV* res;
+    const char* str;
+    STRLEN len;
+    int flags = 0;
+
     if(!SvROK(buffer))
         croak("First argument is not a reference");
 
-    buffer = SvRV(buffer);
-    return SvPV_nolen(buffer);
+    str = SvPV(SvRV(buffer), len);
+
+    GumboOptions options = format_options(opts);
+    if ( options.fragment_context != GUMBO_TAG_LAST ) {
+        flags |= PHG_FLAG_SKIP_ROOT_ELEMENT;
+    }
+    GumboOutput* output = gumbo_parse_with_options(&options, str, len);
+    res = cb(aTHX_ output->document, flags, payload);
+    gumbo_destroy_output(&options, output);
+    return res;
 }
 
 MODULE = HTML::Gumbo    PACKAGE = HTML::Gumbo
 
 SV*
-parse_to_string(self, buffer, ...)
+parse_to_string(self, buffer, opts, ...)
     SV *self
     SV *buffer
+    HV *opts
 
     CODE:
-        const char* str = prepare_buffer(aTHX_ buffer);
-
-        RETVAL = newSVpvn8("", 0);
-
-        GumboOutput* output = gumbo_parse(str);
-        walk_tree(aTHX_ output->document, tree_to_string, (void*)RETVAL);
-        gumbo_destroy_output(&kGumboDefaultOptions, output);
+        RETVAL = common_parse(aTHX_ buffer, opts, parse_to_string_cb, NULL );
 
     OUTPUT: RETVAL
 
 SV*
-parse_to_tree(self, buffer, ...)
+parse_to_tree(self, buffer, opts, ...)
     SV *self
     SV *buffer
+    HV *opts
 
     CODE:
-        const char* str;
         load_module(
             0,
             newSVpvs("HTML::TreeBuilder"),
-            newSViv(5), newSVpvs("-weak"), NULL
+            newSViv(5), newSVpvs("-weak"),
+            NULL
         );
-        str = prepare_buffer(aTHX_ buffer);
-
-        SV* res;
-        GumboOutput* output = gumbo_parse(str);
-        walk_tree(aTHX_ output->document, tree_to_tree, (void*)(&res));
-        gumbo_destroy_output(&kGumboDefaultOptions, output);
-        RETVAL = res;
+        load_module(
+            0,
+            newSVpvs("HTML::Element"),
+            NULL,
+            NULL
+        );
+        RETVAL = common_parse(aTHX_ buffer, opts, parse_to_tree_cb, NULL );
 
     OUTPUT: RETVAL
 
-void
-_parse_to_callback(self, buffer, cb, ...)
+SV*
+_parse_to_callback(self, buffer, cb, opts, ...)
     SV *self
     SV *buffer
     SV *cb
+    HV *opts
 
     CODE:
-        const char* str = prepare_buffer(aTHX_ buffer);
+        RETVAL = common_parse(aTHX_ buffer, opts, parse_to_callback_cb, (void*)cb );
 
-        GumboOutput* output = gumbo_parse(str);
-        walk_tree(aTHX_ output->document, tree_to_callback, (void*)cb);
-        gumbo_destroy_output(&kGumboDefaultOptions, output);
-
-        XSRETURN_YES;
+    OUTPUT: RETVAL

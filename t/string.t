@@ -6,7 +6,8 @@ use Test::More;
 use_ok('HTML::Gumbo');
 
 my $parser = HTML::Gumbo->new;
-my $input = <<'END';
+{
+    my $input = <<'END';
 <!DOCTYPE html>
 <!--This is a comment-->
 <h1>hello world!</h1>
@@ -21,7 +22,7 @@ my $input = <<'END';
 </div>
 <some>
 END
-my $expected = <<'END';
+    my $expected = <<'END';
 <!DOCTYPE html>
 <!--This is a comment--><html><head></head><body><h1>hello world!</h1>
 <div class="test">
@@ -36,20 +37,24 @@ my $expected = <<'END';
 <some>
 </some></body></html>
 END
-my $res = $parser->parse($input);
-is $res, $expected, 'very basic test';
+    my $res = $parser->parse($input);
+    is $res, $expected, 'very basic test';
+}
 
-$input = <<'END';
+{
+    my $input = <<'END';
 <div class="&quot;&bull;&amp;bull;&">&lt;p&gt;</div>
 END
-$expected = <<'END';
+    my $expected = <<'END';
 <html><head></head><body><div class="&quot;•&amp;bull;&amp;">&lt;p&gt;</div>
 </body></html>
 END
-$res = $parser->parse($input);
-is $res, $expected, 'very basic test';
+    my $res = $parser->parse($input);
+    is $res, $expected, 'very basic test';
+}
 
-$input = <<'END';
+{
+    my $input = <<'END';
 <pre>foo</pre>
 <pre>
 foo</pre>
@@ -57,7 +62,7 @@ foo</pre>
 
 foo</pre>
 END
-$expected = <<'END';
+    my $expected = <<'END';
 <html><head></head><body><pre>
 foo</pre>
 <pre>
@@ -67,9 +72,20 @@ foo</pre>
 foo</pre>
 </body></html>
 END
-$res = $parser->parse($input);
-is $res, $expected, 'very basic test';
+    my $res = $parser->parse($input);
+    is $res, $expected, 'very basic test';
+}
 
+{
+    my $input = <<'END';
+<div></div>
+END
+    my $expected = <<'END';
+<div></div>
 
+END
+    my $res = $parser->parse($input, fragment_namespace => 'HTML');
+    is $res, $expected, 'very basic fragment parsing test';
+}
 
 done_testing();
