@@ -17,10 +17,10 @@ name: HTML-Gumbo
 provides:
   HTML::Gumbo:
     file: lib/HTML/Gumbo.pm
-    version: '0.14'
+    version: '0.15'
 requires:
   Alien::LibGumbo: '0.03'
   XSLoader: '0'
 resources:
   repository: https://github.com/ruz/HTML-Gumbo
-version: '0.14'
+version: '0.15'
