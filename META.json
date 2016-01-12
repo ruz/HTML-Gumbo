@@ -34,7 +34,7 @@
    "provides" : {
       "HTML::Gumbo" : {
          "file" : "lib/HTML/Gumbo.pm",
-         "version" : "0.13"
+         "version" : "0.14"
       }
    },
    "release_status" : "stable",
@@ -46,6 +46,6 @@
          "url" : "https://github.com/ruz/HTML-Gumbo"
       }
    },
-   "version" : "0.13",
+   "version" : "0.14",
    "x_serialization_backend" : "JSON::PP version 2.27203"
 }
