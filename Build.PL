@@ -8,6 +8,7 @@ my $builder = Module::Build->new(
     create_license => 1,
 
     configure_requires => {
+        'Module::Build' => 0.42,
         'Alien::LibGumbo' => 0,
     },
     build_requires => {
