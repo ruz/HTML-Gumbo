@@ -1,5 +1,10 @@
 Revision history for Perl module HTML::Gumbo
 
+0.15
+
+    - fragments parsing
+    - fix unreferenced scalar error with 'tree' format
+
 0.14 2015-12-28
 
     - croak in case we don't know what to do

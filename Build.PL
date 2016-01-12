@@ -12,7 +12,7 @@ my $builder = Module::Build->new(
         'ExtUtils::CBuilder' => 0,
     },
     requires => {
-        'Alien::LibGumbo' => 0,
+        'Alien::LibGumbo' => '0.03',
         'XSLoader' => 0,
     },
 
