@@ -1,5 +1,9 @@
 Revision history for Perl module HTML::Gumbo
 
+0.17 2015-01-13
+
+    - fix for threaded perl
+
 0.16 2016-01-12
 
     - fragments parsing
