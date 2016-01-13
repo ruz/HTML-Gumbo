@@ -537,7 +537,7 @@ common_parse(pTHX_ SV* buffer, HV* opts, SV* (*cb)(pTHX_ GumboNode*, int, void*)
 
     str = SvPV(SvRV(buffer), len);
 
-    GumboOptions options = format_options(opts);
+    GumboOptions options = format_options(aTHX_ opts);
     if ( options.fragment_context != GUMBO_TAG_LAST ) {
         flags |= PHG_FLAG_SKIP_ROOT_ELEMENT;
     }
