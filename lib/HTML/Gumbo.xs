@@ -401,7 +401,7 @@ tree_to_callback(pTHX_ PerlHtmlGumboType type, GumboNode* node, void* ctx) {
     dSP;
     SV* cb = (SV*) ctx;
 
-    if ( type == PHG_ELEMENT_END && PHG_IS_VOID_ELEMENT(node->v.element.tag) )
+    if ( type == PHG_ELEMENT_END && node->type == GUMBO_NODE_ELEMENT && PHG_IS_VOID_ELEMENT(node->v.element.tag) )
         return;
 
     ENTER;
